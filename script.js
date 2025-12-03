@@ -222,113 +222,135 @@ async function generateImageWithGemini(characterImage, prompt) {
         const base64Data = characterImage.split(',')[1];
         const mimeType = characterImage.split(';')[0].split(':')[1];
 
-        // Gemini API 호출
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [
-                            {
-                                text: `이 캐릭터의 스타일과 특징을 유지하면서 다음 상황을 그려주세요: ${prompt}\n\n중요: 캐릭터의 외형, 색상, 스타일을 정확히 유지하고, 요청된 상황에 맞는 새로운 포즈와 배경을 만들어주세요.`
-                            },
-                            {
-                                inline_data: {
-                                    mime_type: mimeType,
-                                    data: base64Data
+        // Gemini API 호출 (여러 모델 시도)
+        const models = [
+            'gemini-1.5-flash-latest',
+            'gemini-1.5-pro-latest', 
+            'gemini-pro-vision'
+        ];
+        
+        let lastError = null;
+        
+        for (const model of models) {
+            try {
+                const response = await fetch(
+                    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [
+                                    {
+                                        text: `이 캐릭터의 스타일과 특징을 유지하면서 다음 상황을 그려주세요: ${prompt}\n\n중요: 캐릭터의 외형, 색상, 스타일을 정확히 유지하고, 요청된 상황에 맞는 새로운 포즈와 배경을 만들어주세요.`
+                                    },
+                                    {
+                                        inline_data: {
+                                            mime_type: mimeType,
+                                            data: base64Data
+                                        }
+                                    }
+                                ]
+                            }],
+                            generationConfig: {
+                                temperature: 0.7,
+                                maxOutputTokens: 2048,
+                            }
+                        })
+                    }
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // 텍스트 응답 확인
+                    const textDescription = data.candidates?.[0]?.content?.parts?.[0]?.text || '생성 실패';
+                    
+                    // Canvas를 사용하여 원본 이미지 위에 프롬프트 결과 표시
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    
+                    return new Promise((resolve) => {
+                        img.onload = () => {
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            
+                            // 원본 이미지 그리기
+                            ctx.drawImage(img, 0, 0);
+                            
+                            // 반투명 오버레이
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+                            ctx.fillRect(0, canvas.height - 150, canvas.width, 150);
+                            
+                            // 텍스트 추가
+                            ctx.fillStyle = '#FFD93D';
+                            ctx.font = 'bold 20px Arial';
+                            ctx.fillText('AI 생성 설명:', 20, canvas.height - 120);
+                            
+                            ctx.fillStyle = 'white';
+                            ctx.font = '16px Arial';
+                            const words = textDescription.split(' ');
+                            let line = '';
+                            let y = canvas.height - 90;
+                            
+                            for (let word of words) {
+                                const testLine = line + word + ' ';
+                                if (ctx.measureText(testLine).width > canvas.width - 40 && line !== '') {
+                                    ctx.fillText(line, 20, y);
+                                    line = word + ' ';
+                                    y += 25;
+                                    if (y > canvas.height - 20) break;
+                                } else {
+                                    line = testLine;
                                 }
                             }
-                        ]
-                    }],
-                    generationConfig: {
-                        temperature: 0.7,
-                        maxOutputTokens: 2048,
-                    }
-                })
-            }
-        );
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error?.message || 'API 호출 실패');
-        }
-
-        const data = await response.json();
-        
-        // 텍스트 응답을 이미지로 변환 (Gemini는 직접 이미지 생성을 지원하지 않으므로)
-        // 대신 Imagen API를 사용하거나 다른 이미지 생성 API를 사용해야 합니다
-        
-        // 임시 솔루션: 텍스트 설명을 캔버스에 표시
-        const textDescription = data.candidates?.[0]?.content?.parts?.[0]?.text || '생성 실패';
-        
-        // Canvas를 사용하여 원본 이미지 위에 프롬프트 결과 표시
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        
-        return new Promise((resolve) => {
-            img.onload = () => {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                
-                // 원본 이미지 그리기
-                ctx.drawImage(img, 0, 0);
-                
-                // 반투명 오버레이
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-                ctx.fillRect(0, canvas.height - 150, canvas.width, 150);
-                
-                // 텍스트 추가
-                ctx.fillStyle = '#FFD93D';
-                ctx.font = 'bold 20px Arial';
-                ctx.fillText('AI 생성 설명:', 20, canvas.height - 120);
-                
-                ctx.fillStyle = 'white';
-                ctx.font = '16px Arial';
-                const words = textDescription.split(' ');
-                let line = '';
-                let y = canvas.height - 90;
-                
-                for (let word of words) {
-                    const testLine = line + word + ' ';
-                    if (ctx.measureText(testLine).width > canvas.width - 40 && line !== '') {
-                        ctx.fillText(line, 20, y);
-                        line = word + ' ';
-                        y += 25;
-                        if (y > canvas.height - 20) break;
-                    } else {
-                        line = testLine;
-                    }
+                            ctx.fillText(line, 20, y);
+                            
+                            resolve({
+                                success: true,
+                                imageData: canvas.toDataURL('image/png')
+                            });
+                        };
+                        
+                        img.onerror = () => {
+                            resolve({
+                                success: false,
+                                error: '이미지 로드 실패'
+                            });
+                        };
+                        
+                        img.src = characterImage;
+                    });
+                } else {
+                    const errorData = await response.json();
+                    lastError = errorData.error?.message || `${model} 모델 호출 실패`;
+                    console.log(`${model} 실패:`, lastError);
+                    continue; // 다음 모델 시도
                 }
-                ctx.fillText(line, 20, y);
-                
-                resolve({
-                    success: true,
-                    imageData: canvas.toDataURL('image/png')
-                });
-            };
-            
-            img.onerror = () => {
-                resolve({
-                    success: false,
-                    error: '이미지 로드 실패'
-                });
-            };
-            
-            img.src = characterImage;
-        });
+            } catch (err) {
+                lastError = err.message;
+                console.log(`${model} 오류:`, err);
+                continue; // 다음 모델 시도
+            }
+        }
+        
+        // 모든 모델이 실패한 경우
+        throw new Error(lastError || 'API 호출 실패. API 키를 확인해주세요.');
 
     } catch (error) {
         console.error('Gemini API Error:', error);
         
         // API 키가 잘못된 경우 초기화
-        if (error.message.includes('API key') || error.message.includes('invalid')) {
+        if (error.message.includes('API_KEY_INVALID') || error.message.includes('API key')) {
             localStorage.removeItem(API_KEY_STORAGE);
             GEMINI_API_KEY = '';
+            return {
+                success: false,
+                error: 'API 키가 유효하지 않습니다. 새 API 키를 입력해주세요.'
+            };
         }
         
         return {
