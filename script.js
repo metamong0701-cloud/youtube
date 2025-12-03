@@ -224,8 +224,8 @@ async function generateImageWithGemini(characterImage, prompt) {
 
         // Gemini API 호출 (여러 모델 시도)
         const models = [
-            'gemini-1.5-flash-latest',
-            'gemini-1.5-pro-latest', 
+            'gemini-1.5-flash',
+            'gemini-1.5-pro',
             'gemini-pro-vision'
         ];
         
@@ -234,7 +234,7 @@ async function generateImageWithGemini(characterImage, prompt) {
         for (const model of models) {
             try {
                 const response = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+                    `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
                     {
                         method: 'POST',
                         headers: {
