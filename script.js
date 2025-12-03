@@ -223,7 +223,7 @@ async function generateImageWithGemini(characterImage, prompt) {
         const mimeType = characterImage.split(';')[0].split(':')[1];
 
         // Gemini API 호출 (v1beta API 사용 - v1에서는 1.5 모델 미지원)
-        const model = 'gemini-1.5-flash';
+        const model = 'gemini-2.5-flash';
         
         console.log(`[DEBUG] ${model} 모델로 API 호출 시도...`);
         console.log(`[DEBUG] API 엔드포인트: v1beta/models/${model}:generateContent`);
