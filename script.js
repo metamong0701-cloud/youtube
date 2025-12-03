@@ -222,14 +222,14 @@ async function generateImageWithGemini(characterImage, prompt) {
         const base64Data = characterImage.split(',')[1];
         const mimeType = characterImage.split(';')[0].split(':')[1];
 
-        // Gemini API 호출 (v1 API 사용)
-        const model = 'gemini-1.5-pro';
+        // Gemini API 호출 (v1beta API 사용 - v1에서는 1.5 모델 미지원)
+        const model = 'gemini-1.5-flash';
         
         console.log(`[DEBUG] ${model} 모델로 API 호출 시도...`);
-        console.log(`[DEBUG] API 엔드포인트: v1/models/${model}:generateContent`);
+        console.log(`[DEBUG] API 엔드포인트: v1beta/models/${model}:generateContent`);
         
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
             {
                 method: 'POST',
                 headers: {
