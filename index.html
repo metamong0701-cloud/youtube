@@ -44,9 +44,17 @@
                     <!-- 이미지 미리보기 -->
                     <div id="previewArea" class="preview-area" style="display: none;">
                         <img id="previewImage" src="" alt="미리보기">
-                        <button class="btn btn-secondary" id="saveDefaultBtn">
-                            ⭐ 기본 캐릭터로 저장
-                        </button>
+                        <div class="character-actions">
+                            <button class="btn btn-save-default" id="saveDefaultBtn">
+                                ⭐ 기본 캐릭터로 저장
+                            </button>
+                            <button class="btn btn-delete" id="deleteCharacterBtn">
+                                🗑️ 삭제
+                            </button>
+                        </div>
+                        <p class="saved-status" id="savedStatus" style="display: none;">
+                            💾 기본 캐릭터로 저장됨 (자동 로드)
+                        </p>
                     </div>
                 </div>
 

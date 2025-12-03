@@ -193,6 +193,49 @@ header {
     box-shadow: var(--shadow);
 }
 
+.character-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.character-actions .btn {
+    flex: 1;
+}
+
+.btn-save-default {
+    background: var(--primary-color);
+    color: var(--text-dark);
+}
+
+.btn-save-default:hover {
+    background: #ffc107;
+}
+
+.btn-save-default.saved {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.btn-delete {
+    background: #f44336;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #d32f2f;
+}
+
+.saved-status {
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+    font-weight: 600;
+    margin: 0;
+    padding: 8px;
+    background: rgba(107, 203, 119, 0.1);
+    border-radius: 8px;
+}
+
 /* Prompt Area */
 .prompt-area textarea {
     width: 100%;

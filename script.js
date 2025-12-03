@@ -14,6 +14,8 @@ const apiKeyInput = document.getElementById('apiKeyInput');
 const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
 const toggleApiKeyBtn = document.getElementById('toggleApiKeyBtn');
 const apiStatus = document.getElementById('apiStatus');
+const deleteCharacterBtn = document.getElementById('deleteCharacterBtn');
+const savedStatus = document.getElementById('savedStatus');
 
 // 전역 변수
 let currentCharacterImage = null;
@@ -46,6 +48,20 @@ function updateApiStatus() {
     } else {
         statusText.textContent = '미설정';
         statusText.classList.remove('active');
+    }
+}
+
+// 저장 상태 UI 업데이트
+function updateSavedStatus() {
+    const savedCharacter = localStorage.getItem(STORAGE_KEY);
+    if (savedCharacter && currentCharacterImage === savedCharacter) {
+        savedStatus.style.display = 'block';
+        saveDefaultBtn.classList.add('saved');
+        saveDefaultBtn.innerHTML = '✅ 저장됨 (기본 캐릭터)';
+    } else {
+        savedStatus.style.display = 'none';
+        saveDefaultBtn.classList.remove('saved');
+        saveDefaultBtn.innerHTML = '⭐ 기본 캐릭터로 저장';
     }
 }
 
@@ -107,6 +123,7 @@ function loadImageFile(file) {
         currentCharacterImage = e.target.result;
         previewImage.src = currentCharacterImage;
         previewArea.style.display = 'block';
+        updateSavedStatus();
     };
     
     reader.readAsDataURL(file);
@@ -117,10 +134,27 @@ saveDefaultBtn.addEventListener('click', () => {
     if (currentCharacterImage) {
         try {
             localStorage.setItem(STORAGE_KEY, currentCharacterImage);
-            alert('✅ 기본 캐릭터로 저장되었습니다!');
+            updateSavedStatus();
+            alert('✅ 기본 캐릭터로 저장되었습니다!\n페이지를 새로고침해도 자동으로 불러옵니다.');
         } catch (e) {
             alert('❌ 저장에 실패했습니다. 이미지 크기가 너무 클 수 있습니다.');
         }
+    }
+});
+
+// 캐릭터 삭제 버튼
+deleteCharacterBtn.addEventListener('click', () => {
+    if (confirm('현재 캐릭터를 삭제하시겠습니까?\n(기본 캐릭터로 저장된 것도 함께 삭제됩니다)')) {
+        // LocalStorage에서 삭제
+        localStorage.removeItem(STORAGE_KEY);
+        
+        // UI 초기화
+        currentCharacterImage = null;
+        previewImage.src = '';
+        previewArea.style.display = 'none';
+        characterFileInput.value = '';
+        
+        alert('✅ 캐릭터가 삭제되었습니다.');
     }
 });
 
@@ -131,6 +165,7 @@ function loadDefaultCharacter() {
         currentCharacterImage = savedCharacter;
         previewImage.src = currentCharacterImage;
         previewArea.style.display = 'block';
+        updateSavedStatus();
     }
 }
 
