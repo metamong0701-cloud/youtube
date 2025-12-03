@@ -222,17 +222,17 @@ async function generateImageWithGemini(characterImage, prompt) {
         const base64Data = characterImage.split(',')[1];
         const mimeType = characterImage.split(';')[0].split(':')[1];
 
-        // Gemini API 호출 (여러 모델 시도)
+        // Gemini API 호출 (최신 모델만 사용)
         const models = [
-            'gemini-1.5-flash',
-            'gemini-1.5-pro',
-            'gemini-pro-vision'
+            'gemini-1.5-pro' // 가장 성능 좋은 최신 모델
         ];
         
         let lastError = null;
         
         for (const model of models) {
             try {
+                console.log(`[DEBUG] ${model} 모델로 API 호출 시도...`);
+                
                 const response = await fetch(
                     `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
                     {
@@ -264,9 +264,11 @@ async function generateImageWithGemini(characterImage, prompt) {
 
                 if (response.ok) {
                     const data = await response.json();
+                    console.log(`[DEBUG] ${model} 모델 응답 성공:`, data);
                     
                     // 텍스트 응답 확인
                     const textDescription = data.candidates?.[0]?.content?.parts?.[0]?.text || '생성 실패';
+                    console.log(`[DEBUG] AI 생성 텍스트:`, textDescription);
                     
                     // Canvas를 사용하여 원본 이미지 위에 프롬프트 결과 표시
                     const canvas = document.createElement('canvas');
@@ -327,17 +329,18 @@ async function generateImageWithGemini(characterImage, prompt) {
                 } else {
                     const errorData = await response.json();
                     lastError = errorData.error?.message || `${model} 모델 호출 실패`;
-                    console.log(`${model} 실패:`, lastError);
+                    console.error(`[ERROR] ${model} 실패:`, errorData);
                     continue; // 다음 모델 시도
                 }
             } catch (err) {
                 lastError = err.message;
-                console.log(`${model} 오류:`, err);
+                console.error(`[ERROR] ${model} 오류:`, err);
                 continue; // 다음 모델 시도
             }
         }
         
         // 모든 모델이 실패한 경우
+        console.error('[ERROR] 모든 모델 호출 실패. 마지막 오류:', lastError);
         throw new Error(lastError || 'API 호출 실패. API 키를 확인해주세요.');
 
     } catch (error) {
