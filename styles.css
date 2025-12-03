@@ -1,0 +1,249 @@
+/* 기본 리셋 및 변수 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #FFD93D;
+    --secondary-color: #6BCB77;
+    --dark-bg: #2C3333;
+    --light-bg: #FFFFFF;
+    --text-dark: #2C3333;
+    --text-light: #FFFFFF;
+    --border-radius: 12px;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: var(--text-dark);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Header */
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo {
+    font-size: 2.5rem;
+    color: var(--light-bg);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    font-weight: bold;
+}
+
+/* Main Container */
+.container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Card Styling */
+.card {
+    background: var(--light-bg);
+    border-radius: var(--border-radius);
+    padding: 30px;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-hover);
+}
+
+.card h2 {
+    margin-bottom: 20px;
+    color: var(--text-dark);
+    font-size: 1.5rem;
+}
+
+/* Upload Area */
+.upload-area {
+    margin-bottom: 30px;
+}
+
+.preview-area {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.preview-area img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: var(--border-radius);
+    margin-bottom: 15px;
+    box-shadow: var(--shadow);
+}
+
+/* Prompt Area */
+.prompt-area textarea {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.3s ease;
+}
+
+.prompt-area textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Buttons */
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-upload {
+    background: var(--secondary-color);
+    color: var(--light-bg);
+    width: 100%;
+}
+
+.btn-upload:hover {
+    background: #5ab069;
+}
+
+.btn-secondary {
+    background: #f0f0f0;
+    color: var(--text-dark);
+    width: 100%;
+}
+
+.btn-secondary:hover {
+    background: #e0e0e0;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: var(--text-dark);
+}
+
+.btn-primary:hover {
+    background: #ffc107;
+}
+
+.btn-generate {
+    width: 100%;
+    padding: 16px;
+    font-size: 1.2rem;
+    margin-top: 20px;
+}
+
+.btn-generate:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-download {
+    background: var(--secondary-color);
+    color: var(--light-bg);
+    width: 100%;
+    margin-top: 15px;
+}
+
+.btn-download:hover {
+    background: #5ab069;
+}
+
+/* Output States */
+.initial-state,
+.loading-state,
+.result-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.initial-state p {
+    font-size: 1.1rem;
+    color: #666;
+    line-height: 1.6;
+}
+
+/* Loading Animation */
+.loading-state {
+    padding: 60px 20px;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-state p {
+    font-size: 1.2rem;
+    color: var(--text-dark);
+    font-weight: 500;
+}
+
+/* Result State */
+.result-state img {
+    max-width: 100%;
+    max-height: 500px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .logo {
+        font-size: 2rem;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .card h2 {
+        font-size: 1.3rem;
+    }
+
+    .btn {
+        padding: 10px 20px;
+    }
+}
