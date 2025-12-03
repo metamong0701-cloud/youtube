@@ -10,7 +10,22 @@
     <!-- Header -->
     <header>
         <h1 class="logo">🍌 Banana Studio</h1>
-        <button class="btn-settings" id="settingsBtn" title="API 키 설정">⚙️</button>
+        
+        <!-- API 키 입력 영역 -->
+        <div class="api-key-section">
+            <div class="api-key-container">
+                <input 
+                    type="password" 
+                    id="apiKeyInput" 
+                    placeholder="Gemini API 키를 입력하세요"
+                    class="api-key-input"
+                >
+                <button class="btn btn-api-save" id="saveApiKeyBtn">저장</button>
+                <button class="btn btn-api-toggle" id="toggleApiKeyBtn" title="표시/숨김">👁️</button>
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="btn btn-api-get">API 키 발급</a>
+            </div>
+            <p class="api-status" id="apiStatus">API 키: <span class="status-text">미설정</span></p>
+        </div>
     </header>
 
     <main class="container">

@@ -10,7 +10,10 @@ const loadingState = document.getElementById('loadingState');
 const resultState = document.getElementById('resultState');
 const resultImage = document.getElementById('resultImage');
 const downloadBtn = document.getElementById('downloadBtn');
-const settingsBtn = document.getElementById('settingsBtn');
+const apiKeyInput = document.getElementById('apiKeyInput');
+const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
+const toggleApiKeyBtn = document.getElementById('toggleApiKeyBtn');
+const apiStatus = document.getElementById('apiStatus');
 
 // 전역 변수
 let currentCharacterImage = null;
@@ -26,28 +29,63 @@ let GEMINI_API_KEY = localStorage.getItem(API_KEY_STORAGE) || '';
 // 페이지 로드 시 기본 캐릭터 불러오기
 window.addEventListener('DOMContentLoaded', () => {
     loadDefaultCharacter();
+    updateApiStatus();
+    
+    // 저장된 API 키가 있으면 입력창에 표시
+    if (GEMINI_API_KEY) {
+        apiKeyInput.value = GEMINI_API_KEY;
+    }
 });
 
-// 설정 버튼 클릭 (API 키 관리)
-settingsBtn.addEventListener('click', () => {
-    const currentKey = GEMINI_API_KEY ? '(설정됨)' : '(미설정)';
-    const newKey = prompt(
-        `Gemini API 키 ${currentKey}\n\n새 API 키를 입력하세요:\n(비우면 현재 키를 삭제합니다)\n\nAPI 키 발급: https://aistudio.google.com/app/apikey`,
-        ''
-    );
+// API 키 상태 업데이트
+function updateApiStatus() {
+    const statusText = apiStatus.querySelector('.status-text');
+    if (GEMINI_API_KEY) {
+        statusText.textContent = '설정됨 ✓';
+        statusText.classList.add('active');
+    } else {
+        statusText.textContent = '미설정';
+        statusText.classList.remove('active');
+    }
+}
+
+// API 키 저장 버튼
+saveApiKeyBtn.addEventListener('click', () => {
+    const newKey = apiKeyInput.value.trim();
     
-    if (newKey === null) return; // 취소
-    
-    if (newKey.trim() === '') {
+    if (newKey === '') {
         // API 키 삭제
-        localStorage.removeItem(API_KEY_STORAGE);
-        GEMINI_API_KEY = '';
-        alert('✅ API 키가 삭제되었습니다.');
+        if (confirm('API 키를 삭제하시겠습니까?')) {
+            localStorage.removeItem(API_KEY_STORAGE);
+            GEMINI_API_KEY = '';
+            apiKeyInput.value = '';
+            updateApiStatus();
+            alert('✅ API 키가 삭제되었습니다.');
+        }
     } else {
         // API 키 저장
-        GEMINI_API_KEY = newKey.trim();
+        GEMINI_API_KEY = newKey;
         localStorage.setItem(API_KEY_STORAGE, GEMINI_API_KEY);
+        updateApiStatus();
         alert('✅ API 키가 저장되었습니다.');
+    }
+});
+
+// API 키 표시/숨김 토글
+toggleApiKeyBtn.addEventListener('click', () => {
+    if (apiKeyInput.type === 'password') {
+        apiKeyInput.type = 'text';
+        toggleApiKeyBtn.textContent = '🔒';
+    } else {
+        apiKeyInput.type = 'password';
+        toggleApiKeyBtn.textContent = '👁️';
+    }
+});
+
+// Enter 키로 API 키 저장
+apiKeyInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        saveApiKeyBtn.click();
     }
 });
 
@@ -137,15 +175,11 @@ generateBtn.addEventListener('click', async () => {
 async function generateImageWithGemini(characterImage, prompt) {
     // API 키 확인
     if (!GEMINI_API_KEY) {
-        const apiKey = prompt('Gemini API 키를 입력해주세요:\n(Google AI Studio에서 발급받을 수 있습니다: https://aistudio.google.com/app/apikey)');
-        if (!apiKey) {
-            return {
-                success: false,
-                error: 'API 키가 필요합니다.'
-            };
-        }
-        GEMINI_API_KEY = apiKey.trim();
-        localStorage.setItem(API_KEY_STORAGE, GEMINI_API_KEY);
+        alert('❌ API 키를 먼저 입력해주세요.');
+        return {
+            success: false,
+            error: 'API 키가 필요합니다.'
+        };
     }
 
     try {
