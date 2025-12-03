@@ -224,7 +224,7 @@ async function generateImageWithGemini(characterImage, prompt) {
 
         // Gemini API 호출 (최신 모델만 사용)
         const models = [
-            'gemini-1.5-pro' // 가장 성능 좋은 최신 모델
+            'gemini-1.5-flash-latest' // v1beta에서 지원하는 최신 모델
         ];
         
         let lastError = null;
@@ -234,7 +234,7 @@ async function generateImageWithGemini(characterImage, prompt) {
                 console.log(`[DEBUG] ${model} 모델로 API 호출 시도...`);
                 
                 const response = await fetch(
-                    `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+                    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
                     {
                         method: 'POST',
                         headers: {
